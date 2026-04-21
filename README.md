@@ -234,3 +234,7 @@ for score, sentence in results:
 pip install -r requirements.txt
 python app.py
 ```
+
+## 资料来源
+- [text](https://github.com/555me/beyondGameData)
+- [text](https://github.com/lhclbt/Endfield_Font)
