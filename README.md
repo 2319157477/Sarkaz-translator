@@ -220,7 +220,6 @@ for score, sentence in results:
 - 句子越长、上下文越稀疏，候选空间越大，解码难度越高。
 - 不启用 LLM 时，结果更依赖本地统计数据质量。
 - 当前命令行入口主要提供 **解码**；编码更适合通过 WebUI 或直接调用 `src.encoder.encode()`。
-- `src/ocr.py` 已提供 OCR 基础能力，但当前 WebUI 版本尚未暴露截图识别入口。
 
 ## 开发与调试建议
 
@@ -228,11 +227,6 @@ for score, sentence in results:
 - 修改映射规则时，同时检查 `src/mapping.py` 与 `src/encoder.py`
 - 如果结果质量下降，优先检查 `data/` 中频率数据是否匹配当前语料
 - `decoder.py` 会输出部分调试信息到标准错误，便于观察 Beam Search 过程
-
-## 参考文档
-
-- `docs/superpowers/specs/2026-04-21-sarkaz-decoder-design.md`
-- `docs/superpowers/specs/2026-04-21-webui-design.md`
 
 如果你只是想快速体验，最短路径是：
 
