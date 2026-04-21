@@ -31,7 +31,9 @@ def decode(encoded_str, reverse_index, unigram_freq, bigram_freq,
            api_key, llm_model, llm_base_url=None,
            beam_width=BEAM_WIDTH, candidate_k=CANDIDATE_K,
            top_n=TOP_N, lambda_unigram=LAMBDA_UNIGRAM,
-           transition=None, trigram_freq=None, fourgram_freq=None):
+           lambda_trigram=LAMBDA_TRIGRAM, lambda_fourgram=LAMBDA_FOURGRAM,
+           transition=None, trigram_freq=None, fourgram_freq=None,
+           top_beam_results=TOP_BEAM_RESULTS):
     _log(f"输入: '{encoded_str}' (长度 {len(encoded_str)})")
 
     candidates_per_pos = _prepare_candidates(encoded_str, reverse_index, unigram_freq, candidate_k)
@@ -40,30 +42,35 @@ def decode(encoded_str, reverse_index, unigram_freq, bigram_freq,
         _log(f"警告: 位置 {empty} 无候选字符，解码将失败")
         return []
 
-
     return _decode_beam(candidates_per_pos, encoded_str, bigram_freq, unigram_freq,
-                        beam_width, lambda_unigram, transition, trigram_freq,
-                        fourgram_freq, api_key, llm_model, llm_base_url, top_n)
+                        beam_width, lambda_unigram, lambda_trigram, lambda_fourgram,
+                        transition, trigram_freq, fourgram_freq,
+                        api_key, llm_model, llm_base_url, top_n, top_beam_results)
 
 def _decode_beam(candidates_per_pos, encoded_str, bigram_freq, unigram_freq,
-                 beam_width, lambda_unigram, transition, trigram_freq,
-                 fourgram_freq, api_key, llm_model, llm_base_url, top_n):
+                 beam_width, lambda_unigram, lambda_trigram, lambda_fourgram,
+                 transition, trigram_freq, fourgram_freq,
+                 api_key, llm_model, llm_base_url, top_n,
+                 top_beam_results=TOP_BEAM_RESULTS):
     _log("开始 beam search...")
     beam_results = beam_search(
         candidates_per_pos, bigram_freq, unigram_freq, beam_width, lambda_unigram,
         transition=transition, trigram_freq=trigram_freq,
         fourgram_freq=fourgram_freq,
-        lambda_trigram=LAMBDA_TRIGRAM, lambda_fourgram=LAMBDA_FOURGRAM,
+        lambda_trigram=lambda_trigram, lambda_fourgram=lambda_fourgram,
     )
     _log(f"beam search 完成: {len(beam_results)} 条结果")
     if beam_results:
         _log(f"最高分: {beam_results[0][0]:.2f} '{beam_results[0][1]}'")
 
-    beam_results = beam_results[:TOP_BEAM_RESULTS]
+    beam_results = beam_results[:top_beam_results]
     verified = [(s, sent) for s, sent in beam_results if sent in verify([sent], encoded_str)]
     _log(f"验证通过: {len(verified)}/{len(beam_results)}")
     if not verified:
         return []
 
-    scored = llm_scorer.score_candidates(verified, api_key=api_key, model=llm_model, base_url=llm_base_url)
-    return scored[:top_n]
+    if api_key:
+        scored = llm_scorer.score_candidates(verified, api_key=api_key, model=llm_model, base_url=llm_base_url)
+        return scored[:top_n]
+    else:
+        return verified[:top_n]
