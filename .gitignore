@@ -4,3 +4,4 @@
 docs/
 CLAUDE.md
 src/**/__pycache__/
+__pycache__

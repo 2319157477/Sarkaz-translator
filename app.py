@@ -168,13 +168,13 @@ with gr.Blocks(title="Sarkaz Decoder") as demo:
                     decode_btn = gr.Button("解码", variant="primary")
 
                     with gr.Accordion("高级设置", open=False):
-                        adv_beam_width = gr.Number(label="BEAM_WIDTH", value=BEAM_WIDTH)
-                        adv_candidate_k = gr.Number(label="CANDIDATE_K", value=CANDIDATE_K)
-                        adv_top_n = gr.Number(label="TOP_N", value=TOP_N)
-                        adv_top_beam = gr.Number(label="TOP_BEAM_RESULTS", value=TOP_BEAM_RESULTS)
-                        adv_lam_uni = gr.Slider(0, 2, value=LAMBDA_UNIGRAM, step=0.1, label="LAMBDA_UNIGRAM")
-                        adv_lam_tri = gr.Slider(0, 2, value=LAMBDA_TRIGRAM, step=0.1, label="LAMBDA_TRIGRAM")
-                        adv_lam_four = gr.Slider(0, 2, value=LAMBDA_FOURGRAM, step=0.1, label="LAMBDA_FOURGRAM")
+                        adv_beam_width = gr.Number(label="BEAM_WIDTH", value=BEAM_WIDTH, interactive=True)
+                        adv_candidate_k = gr.Number(label="CANDIDATE_K", value=CANDIDATE_K, interactive=True)
+                        adv_top_n = gr.Number(label="TOP_N", value=TOP_N, interactive=True)
+                        adv_top_beam = gr.Number(label="TOP_BEAM_RESULTS", value=TOP_BEAM_RESULTS, interactive=True)
+                        adv_lam_uni = gr.Slider(0, 2, value=LAMBDA_UNIGRAM, step=0.1, label="LAMBDA_UNIGRAM", interactive=True)
+                        adv_lam_tri = gr.Slider(0, 2, value=LAMBDA_TRIGRAM, step=0.1, label="LAMBDA_TRIGRAM", interactive=True)
+                        adv_lam_four = gr.Slider(0, 2, value=LAMBDA_FOURGRAM, step=0.1, label="LAMBDA_FOURGRAM", interactive=True)
 
                 with gr.Column(scale=1):
                     decode_output = gr.Markdown(label="解码结果")
@@ -184,6 +184,31 @@ with gr.Blocks(title="Sarkaz Decoder") as demo:
                 fn=lambda x: gr.update(visible=x),
                 inputs=[use_llm],
                 outputs=[llm_config],
+            )
+
+            decode_inputs = [
+                decode_input,
+                use_llm,
+                llm_api_key,
+                llm_base_url,
+                llm_model,
+                adv_beam_width,
+                adv_candidate_k,
+                adv_top_n,
+                adv_top_beam,
+                adv_lam_uni,
+                adv_lam_tri,
+                adv_lam_four,
+            ]
+            decode_btn.click(
+                fn=do_decode,
+                inputs=decode_inputs,
+                outputs=[decode_output],
+            )
+            decode_input.submit(
+                fn=do_decode,
+                inputs=decode_inputs,
+                outputs=[decode_output],
             )
 
         # === Encode Tab ===
