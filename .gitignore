@@ -1,0 +1,6 @@
+/.*/
+!/.git/
+.omx/
+docs/
+CLAUDE.md
+src/**/__pycache__/

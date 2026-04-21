@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048">
+    <g transform="translate(0, 2048) scale(1, -1)">
+        <path d="M70 1000H284V0H70ZM284 500 427 1000H570L427 500Z" />
+    </g>
+</svg>
