@@ -2,3 +2,4 @@ openai>=1.0.0
 opencv-python
 cairosvg
 numpy
+gradio>=4.0.0
