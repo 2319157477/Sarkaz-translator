@@ -236,5 +236,5 @@ python app.py
 ```
 
 ## 资料来源
-- [text](https://github.com/555me/beyondGameData)
-- [text](https://github.com/lhclbt/Endfield_Font)
+- [终末地中文语料](https://github.com/555me/beyondGameData)
+- [萨卡兹语字体](https://github.com/lhclbt/Endfield_Font)
