@@ -2,10 +2,6 @@ import os
 import numpy as np
 import cv2
 import gradio as gr
-from svglib.svglib import svg2rlg
-from reportlab.graphics import renderPM
-from PIL import Image
-import io
 
 from src.mapping import build_reverse_index
 from src.frequency import load_freq
@@ -33,19 +29,15 @@ SVG_DIR = "EndfieldFonts"
 # --- Encode helpers ---
 
 def render_letter(letter: str, height: int = 64) -> np.ndarray | None:
-    svg_path = os.path.join(SVG_DIR, f"{letter.upper()}.svg")
-    if not os.path.exists(svg_path):
+    png_path = os.path.join(SVG_DIR, f"{letter.upper()}.png")
+    if not os.path.exists(png_path):
         return None
-    drawing = svg2rlg(svg_path)
-    if drawing is None:
+    img = cv2.imread(png_path, cv2.IMREAD_UNCHANGED)
+    if img is None:
         return None
-    scale = height / drawing.height
-    drawing.width *= scale
-    drawing.height *= scale
-    drawing.transform = (scale, 0, 0, scale, 0, 0)
-    png_bytes = renderPM.drawToString(drawing, fmt="PNG")
-    img = Image.open(io.BytesIO(png_bytes)).convert("RGBA")
-    return np.array(img)
+    if height != img.shape[0]:
+        img = cv2.resize(img, (int(img.shape[1] * height / img.shape[0]), height), interpolation=cv2.INTER_AREA)
+    return img
 
 
 def render_encoded_text(encoded: str, height: int = 64, spacing: int = 4) -> np.ndarray | None:

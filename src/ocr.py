@@ -2,42 +2,21 @@ import os
 import sys
 import glob
 import argparse
-import io
 import numpy as np
 import cv2
-from svglib.svglib import svg2rlg
-from reportlab.graphics import renderPM
-from PIL import Image
 
 
-def _svg_to_gray(svg_path: str, height: int) -> np.ndarray:
-    drawing = svg2rlg(svg_path)
-    scale = height / drawing.height
-    drawing.width *= scale
-    drawing.height *= scale
-    drawing.transform = (scale, 0, 0, scale, 0, 0)
-    png_bytes = renderPM.drawToString(drawing, fmt="PNG")
-    img = Image.open(io.BytesIO(png_bytes)).convert("L")
-    return np.array(img)
-
-
-def render_templates(svg_dir: str, height: int, cache_dir: str) -> dict[str, np.ndarray]:
-    os.makedirs(cache_dir, exist_ok=True)
+def render_templates(svg_dir: str, height: int, cache_dir: str = "") -> dict[str, np.ndarray]:
     templates = {}
-
-    for svg_path in glob.glob(os.path.join(svg_dir, "*.svg")):
-        char_name = os.path.splitext(os.path.basename(svg_path))[0]
-        cache_path = os.path.join(cache_dir, f"{char_name}_{height}.png")
-
-        if os.path.exists(cache_path):
-            img = cv2.imread(cache_path, cv2.IMREAD_GRAYSCALE)
-        else:
-            img = _svg_to_gray(svg_path, height)
-            _, img = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-            cv2.imwrite(cache_path, img)
-
+    for png_path in glob.glob(os.path.join(svg_dir, "*.png")):
+        char_name = os.path.splitext(os.path.basename(png_path))[0]
+        img = cv2.imread(png_path, cv2.IMREAD_GRAYSCALE)
+        if img is None:
+            continue
+        if img.shape[0] != height:
+            img = cv2.resize(img, (int(img.shape[1] * height / img.shape[0]), height), interpolation=cv2.INTER_AREA)
+        _, img = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
         templates[char_name] = img
-
     return templates
 
 

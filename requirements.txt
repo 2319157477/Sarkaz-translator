@@ -1,7 +1,4 @@
 openai>=1.0.0
 opencv-python
-svglib
-reportlab
-Pillow
 numpy
 gradio>=4.0.0
