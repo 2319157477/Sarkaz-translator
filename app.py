@@ -1,8 +1,11 @@
 import os
 import numpy as np
 import cv2
-import cairosvg
 import gradio as gr
+from svglib.svglib import svg2rlg
+from reportlab.graphics import renderPM
+from PIL import Image
+import io
 
 from src.mapping import build_reverse_index
 from src.frequency import load_freq
@@ -33,9 +36,16 @@ def render_letter(letter: str, height: int = 64) -> np.ndarray | None:
     svg_path = os.path.join(SVG_DIR, f"{letter.upper()}.svg")
     if not os.path.exists(svg_path):
         return None
-    png_bytes = cairosvg.svg2png(url=svg_path, output_height=height)
-    arr = np.frombuffer(png_bytes, dtype=np.uint8)
-    return cv2.imdecode(arr, cv2.IMREAD_UNCHANGED)
+    drawing = svg2rlg(svg_path)
+    if drawing is None:
+        return None
+    scale = height / drawing.height
+    drawing.width *= scale
+    drawing.height *= scale
+    drawing.transform = (scale, 0, 0, scale, 0, 0)
+    png_bytes = renderPM.drawToString(drawing, fmt="PNG")
+    img = Image.open(io.BytesIO(png_bytes)).convert("RGBA")
+    return np.array(img)
 
 
 def render_encoded_text(encoded: str, height: int = 64, spacing: int = 4) -> np.ndarray | None:

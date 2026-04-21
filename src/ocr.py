@@ -2,9 +2,23 @@ import os
 import sys
 import glob
 import argparse
+import io
 import numpy as np
 import cv2
-import cairosvg
+from svglib.svglib import svg2rlg
+from reportlab.graphics import renderPM
+from PIL import Image
+
+
+def _svg_to_gray(svg_path: str, height: int) -> np.ndarray:
+    drawing = svg2rlg(svg_path)
+    scale = height / drawing.height
+    drawing.width *= scale
+    drawing.height *= scale
+    drawing.transform = (scale, 0, 0, scale, 0, 0)
+    png_bytes = renderPM.drawToString(drawing, fmt="PNG")
+    img = Image.open(io.BytesIO(png_bytes)).convert("L")
+    return np.array(img)
 
 
 def render_templates(svg_dir: str, height: int, cache_dir: str) -> dict[str, np.ndarray]:
@@ -18,9 +32,7 @@ def render_templates(svg_dir: str, height: int, cache_dir: str) -> dict[str, np.
         if os.path.exists(cache_path):
             img = cv2.imread(cache_path, cv2.IMREAD_GRAYSCALE)
         else:
-            png_bytes = cairosvg.svg2png(url=svg_path, output_height=height)
-            arr = np.frombuffer(png_bytes, dtype=np.uint8)
-            img = cv2.imdecode(arr, cv2.IMREAD_GRAYSCALE)
+            img = _svg_to_gray(svg_path, height)
             _, img = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
             cv2.imwrite(cache_path, img)
 
