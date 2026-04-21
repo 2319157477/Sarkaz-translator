@@ -183,7 +183,6 @@ with gr.Blocks(title="Sarkaz Decoder") as demo:
                             screenshot = gr.ImageEditor(
                                 label="上传截图并框选文字区域",
                                 type="numpy",
-                                crop_size=None,
                             )
                             with gr.Row():
                                 ocr_btn = gr.Button("识别文字")
