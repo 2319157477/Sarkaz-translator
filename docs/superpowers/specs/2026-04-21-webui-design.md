@@ -32,7 +32,7 @@
    - 裁剪后的图片传给 `ocr.py` 的函数识别
    - 识别结果（多行）自动填入文本框
 
-OCR 参数：height 从框选区域的裁剪高度自动推算（基于裁剪区域高度与预估行数的比值），threshold 在高级设置中由用户调整。
+OCR 参数：裁剪后的图片直接传给 `ocr.py` 的识别函数。height 参数由用户在高级设置中指定（默认 50px），用户需根据截图中文字的实际像素高度调整。threshold 同样在高级设置中调整（默认 0.7）。`assemble_text` 已内置多行分行逻辑（按 y 坐标聚类），无需额外处理。
 
 ### LLM 打分（可选）
 
@@ -56,6 +56,7 @@ OCR 参数：height 从框选区域的裁剪高度自动推算（基于裁剪区
 - LAMBDA_UNIGRAM（默认 0.3）
 - LAMBDA_TRIGRAM（默认 0.5）
 - LAMBDA_FOURGRAM（默认 0.8）
+- OCR height（默认 50，单位 px）
 - OCR threshold（默认 0.7）
 
 ## Encode 标签页
