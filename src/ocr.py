@@ -41,6 +41,18 @@ def preprocess_screenshot(image_path: str) -> tuple[np.ndarray, np.ndarray]:
     return binary, inverted
 
 
+def preprocess_image_array(img: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    if len(img.shape) == 2:
+        gray = img
+    else:
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    binary = cv2.adaptiveThreshold(
+        gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2
+    )
+    inverted = cv2.bitwise_not(binary)
+    return binary, inverted
+
+
 def _compute_iou(box1, box2):
     x1 = max(box1[0], box2[0])
     y1 = max(box1[1], box2[1])
